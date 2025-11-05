@@ -1,18 +1,27 @@
 FROM maven:4.0.0-rc-4-eclipse-temurin-17-alpine AS build
 
-COPY src src
-COPY pom.xml pom.xml
+WORKDIR /build
 
+COPY pom.xml .
+# Кэшируем зависимости
+RUN mvn dependency:go-offline
+
+COPY src src
 RUN mvn clean package
 
-
+# Второй этап — runtime
 FROM bellsoft/liberica-openjdk-alpine:17
 
-RUN adduser --system spring-boot && addgroup --system spring-boot && adduser spring-boot spring-boot
-USER spring-boot
+# Создаём пользователя и группу
+RUN addgroup --system spring-boot && adduser --system spring-boot --ingroup spring-boot
 
+# Создаём директорию и устанавливаем права
+RUN mkdir -p /app && chown spring-boot:spring-boot /app
 WORKDIR /app
 
-COPY --from=build target/*.jar ./app.jar
+# Копируем JAR с правами пользователя
+COPY --from=build --chown=spring-boot:spring-boot /build/target/*.jar ./app.jar
 
-ENTRYPOINT ["java", "-jar", "./app.jar"]
+USER spring-boot
+
+ENTRYPOINT ["java", "-jar", "/app/app.jar"]
