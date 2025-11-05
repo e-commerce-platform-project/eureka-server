@@ -1,0 +1,21 @@
+server:
+  port: 8761
+
+spring:
+  application:
+    name: eureka-server
+
+eureka:
+  instance:
+    hostname: ${EUREKA_HOST:localhost}
+    instance-id: ${spring.application.name}:${server.port}
+  client:
+    register-with-eureka: false
+    fetch-registry: false
+    service-url:
+      defaultZone: http://${eureka.instance.hostname}:${EUREKA_PORT:${server.port}}/eureka/
+
+  server:
+    enable-self-preservation: true          # Защита от сетевых проблем
+    eviction-interval-timer-in-ms: 60000    # Интервал очистки мертвых инстансов
+    wait-time-in-ms-when-sync-empty: 0      # Не ждать при пустом реестре
