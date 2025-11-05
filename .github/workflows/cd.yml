@@ -26,14 +26,14 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Extract metadata (use tag as version)
+      - name: Extract metadata
         id: meta
         uses: docker/metadata-action@v5
         with:
           images: ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}
           tags: |
-            type=ref,event=tag           # Например: v1.2.3
-            type=raw,value=latest,enable={{is_default_branch}}  # Опционально: latest при теге на main
+            type=ref,event=tag,format={{trimPrefix}}
+            type=raw,value=latest,enable={{is_default_branch}}
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
