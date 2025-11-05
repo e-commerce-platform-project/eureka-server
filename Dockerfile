@@ -12,6 +12,8 @@ RUN mvn clean package
 # Второй этап — runtime
 FROM bellsoft/liberica-openjdk-alpine:17
 
+RUN apk add --no-cache curl
+
 # Создаём пользователя и группу
 RUN addgroup --system spring-boot && adduser --system spring-boot --ingroup spring-boot
 
